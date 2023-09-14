@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +17,8 @@
   },
   "homepage": "https://github.com/pipecosme123/api_prescripciones_colgate#readme",
   "dependencies": {
+    "apicache": "^1.6.3",
+    "aws-sdk": "^2.1397.0",
     "axios": "^1.3.4",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",

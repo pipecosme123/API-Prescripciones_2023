@@ -1,11 +1,13 @@
-exports.buildHTML = (listProductos) => {
+const { base64Image } = require("./base64Image");
+
+exports.buildHTML = async ({productos}) => {
 
    let arrProductos = [];
    let html = '';
 
-   listProductos.forEach(data => {
-      
-      let imagen = `https://imagenes.kagencia.com/prescripciones_2023/${data.imagenes}`
+   await productos.forEach(async data => {
+      // let imagen = `http://192.168.1.29:3011/api/img?key=${data.imagen}`;
+      let imagen = await base64Image(data.imagen);
       let table = `
          <td>
             <div class="productos">

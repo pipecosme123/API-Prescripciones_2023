@@ -4,6 +4,6 @@ exports.getDataAuth = (req, res, next) => {
    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
    const [username, password] = credentials.split(':');
 
-   req.body = { correo: username, password };
+   req.body = { username, password };
    next();
 }

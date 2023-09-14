@@ -1,143 +1,360 @@
 const { sendQueryDataBase } = require("../config/model_database");
 
-exports.login = (req, res, next) => {
+exports.get_login = (req, res, next) => {
+  const { password } = req.body;
+  const authData = req.authData;
 
-   const {
-      password
-   } = req.body;
+  const query = `
+    SELECT 
+      U.idusuarios AS id, R.roles AS rol, U.cedulas AS cedula, U.codigo_col, U.nombres, U.apellidos, U.telefonos AS telefono,
+      (SELECT nombre FROM imagenes WHERE idusuarios = U.idusuarios AND idtipo_imagenes = 1) AS firma,
+      (SELECT nombre FROM imagenes WHERE idusuarios = U.idusuarios AND idtipo_imagenes = 2) AS sello,
+      U.create_at 
+    FROM usuarios U 
+    JOIN roles R ON U.idroles = R.idroles
+    WHERE cedulas = ?
+    LIMIT 1;
+    `;
+  const data_query = [password || authData?.odontologo.cedula];
+  sendQueryDataBase(query, data_query)
+    .then((response) => {
 
-   const query = `SELECT id_odontologos AS id, cedulas_odontologos AS cedulas, nombres_odontologos AS nombres, apellidos_odontologos AS apellidos, telefonos_odontologos AS telefonos FROM odontologos WHERE cedulas_odontologos = ? LIMIT 1;`
-   const data_query = [password];
-   sendQueryDataBase(query, data_query)
-      .then((response) => {
-         req.body.data = response
-         next();
-      })
-      .catch((error) => {
-         throw error;
-      })
-}
+      if (response.length !== 0) {
+        req.body.data = response;
+        next();
+      } else {
+        res.status(403).send("El número de cedula es incorrecto");
+      }
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+exports.get_login_lector = (req, res, next) => {
+  const { username, password } = req.body;
+
+  const query = `
+    SELECT 
+      U.idusuarios AS id, R.roles AS rol, U.cedulas AS cedula, U.codigo_col, U.nombres, U.apellidos, U.telefonos AS telefono,
+      (SELECT nombre FROM imagenes WHERE idusuarios = U.idusuarios AND idtipo_imagenes = 1) AS firma,
+      (SELECT nombre FROM imagenes WHERE idusuarios = U.idusuarios AND idtipo_imagenes = 2) AS sello,
+      U.create_at 
+    FROM usuarios U 
+    JOIN roles R ON U.idroles = R.idroles
+    WHERE cedulas = ? AND codigo_col = ?;
+    `;
+
+  const data_query = [username, password];
+
+  sendQueryDataBase(query, data_query)
+    .then((response) => {
+      if (response.length === 0) {
+        res.status(403).send("El número de cedula es incorrecto");
+      } else {
+        req.body.data = response;
+        next();
+      }
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+exports.get_prescripciones = (req, res, next) => {
+  const { id } = req.authData.odontologo;
+
+  const query =
+    "SELECT idprescripciones AS id, cedulas, nombres, apellidos, create_at FROM prescripciones WHERE idusuarios = ? ORDER BY create_at DESC;";
+
+  sendQueryDataBase(query, id)
+    .then((response) => {
+      req.body = { data: response };
+      next();
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
 
 exports.get_imagenes_productos = async (req, res, next) => {
+  const { prescripcion } = req.body;
 
-   const {
-      prescripcion
-   } = req.body;
+  let ids = "";
 
-   let ids = ''
+  for (let i = 0; i < prescripcion.productos.length; i++) {
+    ids += "?,";
+  }
 
-   for (let i = 0; i < prescripcion.productos.length; i++) {
-      ids += '?,'
-   }
+  const query = `SELECT nombres, usos, imagen FROM productos WHERE idproductos IN (${ids.slice(0, -1)});`;
+  const data_query = prescripcion.productos;
 
-   const query = `SELECT nombres_productos AS nombres, usos_productos AS usos, imagenes_productos AS imagenes FROM productos WHERE id_productos IN (${ids.slice(0, -1)});`
-   const data_query = prescripcion.productos;
-
-   sendQueryDataBase(query, data_query)
-      .then((res) => {
-         req.body.prescripcion.productos = res;
-         next();
-      })
-      .catch((err) => {
-         next(err);
-      })
-}
+  sendQueryDataBase(query, data_query)
+    .then((res) => {
+      req.body.prescripcion.productos = res;
+      next();
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
 
 exports.get_lista_productos = async (req, res, next) => {
-
-   const query = `SELECT id_productos, nombres_productos, imagenes_productos, categoria_productos FROM productos;`
-   sendQueryDataBase(query)
-      .then((response) => {
-         res.send(response);
-      })
-      .catch((err) => {
-         next(err);
-      })
-}
+  const query = `
+   SELECT P.idproductos AS id, C.categorias, T.tipos_productos AS tipo, P.nombres, P.usos, P.imagen
+   FROM productos P
+   JOIN categorias C ON P.idcategorias = C.idcategorias
+   JOIN tipos_productos T ON P.idtipos_productos = T.idtipos_productos
+   ORDER BY P.nombres ASC;
+   `;
+  sendQueryDataBase(query)
+    .then((response) => {
+      res.send(response);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
 
 exports.get_prescripcion = async (req, res, next) => {
+  const { id } = req.params;
 
-   const id = parseInt(Buffer.from(req.params.id_pres, 'base64').toString('ascii'));
+  const query_prescripcion = `SELECT idusuarios, cedulas, nombres, apellidos, recomendaciones, create_at FROM prescripciones WHERE idprescripciones = ?;`;
 
-   const query_prescripcion = `SELECT id_odontologos, cedulas, nombres, apellidos, recomendaciones, fecha_registro FROM prescripciones WHERE id_prescripciones = ?;`;
-   const query_odontologo = `SELECT cedulas_odontologos AS cedulas, nombres_odontologos AS nombres, apellidos_odontologos AS apellidos, telefonos_odontologos AS telefonos FROM odontologos WHERE id_odontologos = ?;`;
-   const query_productos = `SELECT p.nombres_productos AS nombres FROM registro_productos rp JOIN productos p ON rp.id_productos = p.id_productos WHERE rp.id_prescripciones = ?;`;
+  const prescripcion = await sendQueryDataBase(query_prescripcion, id)
+    .then((response) => {
+      return response;
+    })
+    .catch((err) => {
+      next(err);
+    });
 
-   const prescripcion = await sendQueryDataBase(query_prescripcion, id)
+  if (prescripcion.length !== 0) {
+    const pres = prescripcion[0];
+
+    const query_productos = `
+      SELECT P.idproductos AS id, C.categorias, T.tipos_productos AS tipo, P.nombres, P.imagen 
+      FROM registro_productos RP 
+      JOIN productos P ON RP.idproductos = P.idproductos
+      JOIN categorias C ON P.idcategorias = C.idcategorias
+      JOIN tipos_productos T ON P.idtipos_productos = T.idtipos_productos
+      WHERE RP.idprescripciones = ?;
+    `;
+
+    const productos = await sendQueryDataBase(query_productos, id)
       .then((response) => {
-         return response[0];
+        return response;
       })
       .catch((err) => {
-         next(err);
-      })
+        next(err);
+      });
 
-   const odontologo = await sendQueryDataBase(query_odontologo, prescripcion.id_odontologos)
-      .then((response) => {
-         return response[0];
-      })
-      .catch((err) => {
-         next(err);
-      })
-
-   const productos = await sendQueryDataBase(query_productos, id)
-      .then((response) => {
-         return response;
-      })
-      .catch((err) => {
-         next(err);
-      })
-
-   req.body.data = {
+    res.send({
       id,
-      prescripcion,
-      odontologo,
-      productos
-   }
+      prescripcion: pres,
+      productos,
+    });
 
-   next();
+    next();
+  } else {
+    res.send(
+      "El ID de la prescipción no se encuentra registrado en la base de datos"
+    );
+  }
+};
+
+exports.get_key_image = (req, res, next) => {
+  const { odontologo } = req.authData;
+
+  const query = `
+   SELECT I.idimagenes, T.tipo_imagen, I.nombre 
+   FROM imagenes I 
+   JOIN tipo_imagenes T ON I.idtipo_imagenes = T.idtipo_imagenes
+   WHERE I.idusuarios = ?;
+   `;
+
+  sendQueryDataBase(query, odontologo.id)
+    .then((response) => {
+      req.body.img_del = response;
+      next();
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.get_data_prescripcion = async (req, res, next) => {
+  const { id } = req.params;
+
+  const query = `SELECT cedulas AS cedula, nombres AS nombre, apellidos AS apellido, recomendaciones, create_at FROM prescripciones WHERE idprescripciones = ?;`;
+  const query_productos = `SELECT idproductos FROM kagencia_prescripciones_2023.registro_productos where idprescripciones = ?;`;
+
+  const { cedula, nombre, apellido, recomendaciones } = await sendQueryDataBase(query, [id])
+    .then((res) => {
+      return res[0];
+    })
+    .catch((err) => {
+      next(err);
+    });
+
+  const get_productos = await sendQueryDataBase(query_productos, [id])
+    .then((res) => {
+      return res
+    })
+    .catch((err) => {
+      next(err);
+    });
+
+  const productos = get_productos.map(item => item.idproductos);
+
+  req.body = {
+    paciente: {
+      cedula,
+      nombre,
+      apellido
+    },
+    prescripcion: {
+      id,
+      productos,
+      recomendaciones
+    }
+  }
+
+  next();
 }
 
 exports.post_data_prescripcion = async (req, res, next) => {
+  const { odontologo } = req.authData;
 
-   const { odontologo } = req.authData;
+  const { paciente, prescripcion } = req.body;
 
-   const {
-      paciente,
-      prescripcion
-   } = req.body;
+  const query = `INSERT INTO prescripciones (idusuarios, cedulas, nombres, apellidos, recomendaciones) VALUES (?, ?, ?, ?, ?);`;
 
-   const query = `INSERT INTO prescripciones (id_odontologos, cedulas, nombres, apellidos, recomendaciones) VALUES (?, ?, ?, ?, ?);`
+  const insert_data_prescripcion = await sendQueryDataBase(query, [
+    odontologo.id,
+    paciente.cedula,
+    paciente.nombre,
+    paciente.apellido,
+    prescripcion.recomendaciones,
+  ])
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      next(err);
+    });
 
-   const insert_data_prescripcion = await sendQueryDataBase(query, [odontologo.id, paciente.cedula, paciente.nombre, paciente.apellido, prescripcion.recomendaciones])
-      .then((res) => { return res })
-      .catch((err) => { next(err) })
+  for (let i = 0; i < prescripcion.productos.length; i++) {
+    const query = `INSERT INTO registro_productos (idprescripciones, idproductos) VALUES (?, ?);`;
+    await sendQueryDataBase(query, [
+      insert_data_prescripcion.insertId,
+      prescripcion.productos[i],
+    ]).catch((err) => {
+      next(err);
+    });
+  }
 
-   for (let i = 0; i < prescripcion.productos.length; i++) {
-      const query = `INSERT INTO registro_productos (id_prescripciones, id_productos) VALUES (?, ?);`;
-      await sendQueryDataBase(query, [insert_data_prescripcion.insertId, prescripcion.productos[i]])
-         .catch((err) => { next(err) })
-   }
+  req.body.prescripcion.id = insert_data_prescripcion.insertId;
 
-   req.body.prescripcion.id = insert_data_prescripcion.insertId;
+  next();
+};
 
-   next();
-}
+const upload_db = ({ id, imagenes }) => {
+  const promises = [];
 
-exports.post_imagen_firma_sello = async (req, res, next) => {
+  for (const property in imagenes) {
+    const idtipo_imagenes = property === "firma" ? 1 : 2;
+    const query = `INSERT INTO imagenes (idusuarios, idtipo_imagenes, nombre) VALUES (?, ?, ?)`;
+    const data_query = [id, idtipo_imagenes, imagenes[property].Key];
 
-   const { id } = req.query;
+    promises.push(sendQueryDataBase(query, data_query));
+  }
 
-   for (const property in imagenes) {
-      const id_tipo_imagenes = property === 'firma' ? 1 : 2;
-      const query = `INSERT INTO imagenes_odontologos (id_odontologos, id_tipo_imagenes, nombre_imagen) VALUES (?, ?, ?)`;
-      const data_query = [odontologo.id, id_tipo_imagenes, imagenes[property][0].filename];
+  return Promise.all(promises);
+};
 
-      await sendQueryDataBase(query, data_query)
-         .catch((err) => {
-            next(err)
-         })
-   }
+exports.put_data_user = async (req, res, next) => {
+  const { id } = req.authData.odontologo;
 
-   res.send('Los archivos se han añadido correctamente');
+  const { nombres, apellidos, telefono } = JSON.parse(req.body.data);
+  const imagenes = req.aws;
 
-}
+  try {
+
+    const query = `UPDATE usuarios SET nombres = ?, apellidos = ?, telefonos = ? WHERE (idusuarios = ?);`;
+    const data_query = [nombres, apellidos, telefono, id];
+    await sendQueryDataBase(query, data_query);
+
+    for (const property in imagenes) {
+      const idtipo_imagenes = property === "firma" ? 1 : 2;
+
+      const query_select =
+        "SELECT CASE WHEN idimagenes IS NOT NULL THEN true END AS existe FROM imagenes WHERE idusuarios = ? AND idtipo_imagenes = ?;";
+
+      const existe = await sendQueryDataBase(query_select, [
+        id,
+        idtipo_imagenes,
+      ]).then((response) => {
+        return response;
+      });
+
+      let query;
+      let data_query = [];
+      const { Key } = imagenes[property];
+
+      if (existe.length !== 0) {
+        query = `UPDATE imagenes SET nombre = ? WHERE (idusuarios = ? AND idtipo_imagenes = ?);`;
+        data_query = [Key, id, idtipo_imagenes];
+      } else {
+        query = `INSERT INTO imagenes (idusuarios, idtipo_imagenes, nombre) VALUES (?, ?, ?)`;
+        data_query = [id, idtipo_imagenes, Key];
+      }
+
+      await sendQueryDataBase(query, data_query);
+    }
+
+    next();
+
+    // res.send("La información se ha añadido correctamente");
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.put_imagen_firma_sello = async (req, res, next) => {
+  const { id } = req.authData.odontologo;
+  const imagenes = req.aws;
+
+  try {
+    for (const property in imagenes) {
+      const idtipo_imagenes = property === "firma" ? 1 : 2;
+
+      const query_select =
+        "SELECT CASE WHEN idimagenes IS NOT NULL THEN true END AS existe FROM imagenes WHERE idusuarios = ? AND idtipo_imagenes = ?;";
+      const existe = await sendQueryDataBase(query_select, [
+        id,
+        idtipo_imagenes,
+      ]).then((response) => {
+        return response;
+      });
+
+      let query;
+      let data_query = [];
+      const { Key } = imagenes[property];
+
+      if (existe.length !== 0) {
+        query = `UPDATE imagenes SET nombre = ? WHERE (idusuarios = ? AND idtipo_imagenes = ?);`;
+        data_query = [Key, id, idtipo_imagenes];
+      } else {
+        query = `INSERT INTO imagenes (idusuarios, idtipo_imagenes, nombre) VALUES (?, ?, ?)`;
+        data_query = [id, idtipo_imagenes, Key];
+      }
+
+      await sendQueryDataBase(query, data_query);
+    }
+    res.send("Los archivos se han añadido correctamente");
+    next();
+  } catch (err) {
+    next(err);
+  }
+};

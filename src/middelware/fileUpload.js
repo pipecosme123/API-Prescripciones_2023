@@ -3,16 +3,14 @@ const multer = require("multer")
 
 const diskstorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    let folder;
-    if (file.fieldname === 'sello') {
-      folder = 'src/uploads/sellos';
-    } else if (file.fieldname === 'firma') {
-      folder = 'src/uploads/firmas';
-    }
-    cb(null, folder);
+    const { fieldname } = file;
+    cb(null, `src/uploads/${fieldname}`);
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname)
+    const { originalname } = file;
+    const name = new Date();
+    const ext = originalname.slice(originalname.lastIndexOf('.')).toLowerCase();
+    cb(null, `${name.getTime()}${ext}`);
   }
 })
 

@@ -20,11 +20,18 @@
       }
 
       .titulo {
-         font-size: 30px;
-         font-weight: 900;
+         font-size: 20px;
+         font-weight: 700;
          text-align: center;
          text-transform: uppercase;
          color: #d2010d;
+      }
+
+      .logoColgate {
+         width: 70px;
+         position: absolute;
+         top: 0;
+         left: 30px;
       }
 
       .seccionQR {
@@ -37,8 +44,8 @@
          border-radius: 8px;
          background: #d2010d;
          position: absolute;
-         top: 90px;
-         right: 130px;
+         top: 75px;
+         right: 60px;
       }
 
       .seccionQR h3 {
@@ -47,11 +54,11 @@
          font-size: 10px;
          text-align: center;
          color: #fff;
-         font-weight: 900;
+         font-weight: 500;
       }
 
       .seccionQR img {
-         width: 90px;
+         width: 70px;
          padding: 8px;
          border-radius: 8px;
          background: #fff;
@@ -71,36 +78,28 @@
          margin: 0;
          padding: 4px 8px;
          border-radius: 8px;
-         font-size: 12px;
-         text-transform: uppercase;
-      }
-
-      .item-info p {
-         margin: 0;
-         padding: 4px 8px;
-         border-radius: 8px;
-         font-size: 12px;
+         font-size: 10px;
          text-transform: uppercase;
       }
 
       .item-info .item-titulo {
-         width: 90px;
-         font-weight: 900;
+         width: 70px;
+         font-weight: 500;
       }
 
       .item-info p.item-titulo.paciente,
-      .item-info p.infoVariable.paciente{
+      .item-info p.infoVariable.paciente {
          background: #D9F0F2;
       }
 
       .item-info p.item-titulo.doctor,
-      .item-info p.infoVariable.doctor{
+      .item-info p.infoVariable.doctor {
          background: #eeeeee;
       }
 
       .item-info p.infoVariable {
-         margin-left: 8px;
-         width: 300px;
+         margin-left: 4px;
+         width: 200px;
       }
 
       .seccion {
@@ -111,24 +110,26 @@
       }
 
       .listaProductos {
-
          display: flex;
          flex-wrap: wrap;
       }
 
+      .listaProductos td {
+         width: 850px;
+      }
+
       .titulo-listaProductos {
          margin: 0px;
-         font-size: 1.5em;
-         font-weight: 900;
+         font-size: 15px;
+         font-weight: 700;
          color: #d2010d;
          text-transform: uppercase;
          text-align: center;
       }
 
       .productos {
-         width: 93%;
+         /* width: 850px; */
          height: min-content;
-         margin: 4px;
          padding: 8px;
          display: flex;
          align-items: center;
@@ -158,8 +159,8 @@
 
       .productos .informacion-productos .titulo-informacion {
          margin: 0px 0px 8px;
-         font-size: 15px;
-         font-weight: 900;
+         font-size: 10px;
+         font-weight: 500;
          color: #d2010d;
          text-transform: uppercase;
          text-align: left;
@@ -178,18 +179,18 @@
          border-radius: 8px;
       }
 
-      .recomendaciones h3.titulo-recomendaciones {
+      h3.titulo-recomendaciones {
          margin: 0;
          font-size: 15px;
-         font-weight: 900;
+         font-weight: 700;
          color: #009CA6;
          text-transform: uppercase;
-         text-align: left;
+         text-align: center;
       }
 
       .recomendaciones p.texto-recomendaciones {
          margin: 0;
-         font-size: 11px;
+         font-size: 10px;
          text-align: justify;
       }
 
@@ -209,7 +210,7 @@
 
       .seccionDoctor .firma-doctor,
       .seccionDoctor .sello-doctor {
-         height: 70px;
+         height: 80px;
       }
 
       .seccionDoctor .firma-doctor img,
@@ -223,7 +224,8 @@
 
       .seccionDoctor .nombre-doctor {
          margin: 0px;
-         font-weight: 900;
+         font-size: 12px;
+         font-weight: 700;
          text-transform: capitalize;
       }
 
@@ -242,12 +244,14 @@
          margin: 0px;
          font-size: 10px;
          text-align: center;
+         color: #7e7e7e;
       }
    </style>
 </head>
 
 <body>
    <h1 class="titulo">Prescripción Odontológica</h1>
+   <img src="{{LOGO_COLGATE}}" class="logoColgate" />
    <hr>
    <div>
       <div class="seccionQR">
@@ -287,7 +291,7 @@
                      <p class="item-titulo doctor">Doctor(A):</p>
                   </td>
                   <td>
-                     <p class="infoVariable doctor">{{NOMBRE_DOCTOR}}</p>
+                     <p class="infoVariable doctor">{{NOMBRE_DOCTOR}} {{APELLIDO_DOCTOR}}</p>
                   </td>
                </tr>
                <tr class="item-info">
@@ -318,8 +322,8 @@
    </div>
 
    <hr>
+   <h3 class='titulo-recomendaciones'>RECOMENDACIONES ADICIONALES</h3>
    <div class="recomendaciones">
-      <h3 class='titulo-recomendaciones'>RECOMENDACIONES ADICIONALES</h3>
       <p class='texto-recomendaciones'>{{RECOMENDACIONES}}</p>
    </div>
 
@@ -329,18 +333,16 @@
             <table>
                <tr>
                   <td>
-                     <img class='firma-doctor'
-                        src="https://www.doctorpax.es/blog/wp-content/uploads/2018/07/486px-Thomas_Jefferson_Signature.svg_.png" />
+                     <img class='firma-doctor' src="{{FIRMA_DOCTOR}}" />
                   </td>
                   <td>
-                     <img class='sello-doctor'
-                        src="https://comprapromocionales.com/wp-content/uploads/2020/02/SELLO-4912-PROF.jpg" />
+                     <img class='sello-doctor' src="{{SELLO_DOCTOR}}" />
                   </td>
                </tr>
             </table>
          </div>
          <hr class="separador-doctor">
-         <p class="nombre-doctor">Dr(a).: {{NOMBRE_DOCTOR}}</p>
+         <p class="nombre-doctor">Dr(a).: {{NOMBRE_DOCTOR}} {{APELLIDO_DOCTOR}}</p>
       </div>
       <br />
       <div class='sugerencia'>

@@ -1,12 +1,13 @@
 exports.varificarRol = (roles) => (req, res, next) => {
+  const {
+    odontologo: { rol },
+  } = req.authData;
 
-   const { rol } = req.body;
-   
-   if ([].concat(roles).includes(rol)) {
-      next();
-   }else{
-      res.status(409).send({
-         error: "No tienen permisos"
-      })
-   }
-}
+  if ([].concat(roles).includes(rol)) {
+    next();
+  } else {
+    res.status(409).send({
+      error: "No tienen permisos",
+    });
+  }
+};
