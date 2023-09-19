@@ -29,7 +29,7 @@ app.get('/lista', verificarToken, varificarRol([KAGENCIA, ODONTOLOGO]), get_pres
 app.get('/pres/:id', verificarToken, varificarRol([KAGENCIA, ODONTOLOGO]), get_prescripcion);
 app.get('/prescripcion/:id', verificarToken, varificarRol([KAGENCIA, QR]), validateID, get_prescripcion, buildJson);
 app.get('/img', cache('10 minutes'), aws_get_files, send_image);
-// app.get('/download/:id', get_data_prescripcion, get_imagenes_productos, createPDF, downloadFiles, deleteFiles);
+// app.get('/download/:id', get_data_prescripcion, get_imagenes_productos, aws_savefiles, createPDF, downloadFiles, deleteFiles);
 app.get('/download/:id', verificarToken, varificarRol([KAGENCIA, ODONTOLOGO, COLGATE]), get_data_prescripcion, get_imagenes_productos, aws_savefiles, createPDF, downloadFiles, deleteFiles);
 // app.get('/download/:id', verificarToken, varificarRol([KAGENCIA, ODONTOLOGO, COLGATE]), get_data_prescripcion, get_imagenes_productos, createPDF);
 

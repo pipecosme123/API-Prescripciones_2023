@@ -48,7 +48,7 @@ exports.createPDF = async (req, res, next) => {
    let qr_code = await createQRCode(info);
 
    let data = {
-      '{{LOGO_COLGATE}}': await base64Image(path.join(__dirname, '../view/LogoColgate.svg'), 'svg+xml'),
+      '{{TARJETA_COLGATE_PASS}}': await base64Image(path.join(__dirname, '../view/fondo.svg'), 'svg+xml'),
       '{{FECHA_ACTUAL}}': getFecha(),
       '{{NOMBRE_PACIENTE}}': paciente.nombre,
       '{{APELLIDO_PACIENTE}}': paciente.apellido,
@@ -61,14 +61,14 @@ exports.createPDF = async (req, res, next) => {
       '{{RECOMENDACIONES}}': prescripcion.recomendaciones,
       '{{QR_INFORMATION}}': `${qr_code}`,
       '{{FIRMA_DOCTOR}}': await base64Image(odontologo.firma),
-      '{{SELLO_DOCTOR}}': await base64Image(odontologo.sello),
+      '{{SELLO_DOCTOR}}': odontologo.sello ? await base64Image(odontologo.sello) : await base64Image(path.join(__dirname, '../view/blanco.png')),
    }
 
    let options = {
-      format: 'Letter'
+      format: 'Letter',
    }
 
-   html = html.replace(/{{LOGO_COLGATE}}|{{FECHA_ACTUAL}}|{{NOMBRE_PACIENTE}}|{{APELLIDO_PACIENTE}}|{{CEDULA_PACIENTE}}|{{CEDULA_DOCTOR}}|{{NOMBRE_DOCTOR}}|{{APELLIDO_DOCTOR}}|{{TELEFONO_DOCTOR}}|{{LISTA_PRODUCTOS}}|{{RECOMENDACIONES}}|{{QR_INFORMATION}}|{{FIRMA_DOCTOR}}|{{SELLO_DOCTOR}}/gi, (matched) => { return data[matched] })
+   html = html.replace(/{{TARJETA_COLGATE_PASS}}|{{FECHA_ACTUAL}}|{{NOMBRE_PACIENTE}}|{{APELLIDO_PACIENTE}}|{{CEDULA_PACIENTE}}|{{CEDULA_DOCTOR}}|{{NOMBRE_DOCTOR}}|{{APELLIDO_DOCTOR}}|{{TELEFONO_DOCTOR}}|{{LISTA_PRODUCTOS}}|{{RECOMENDACIONES}}|{{QR_INFORMATION}}|{{FIRMA_DOCTOR}}|{{SELLO_DOCTOR}}/gi, (matched) => { return data[matched] })
 
    filePDF.create(html, options).toFile(path.join(__dirname, '../uploads') + `/${fileName}`, (err, res) => {
       if (err) next(err);

@@ -13,10 +13,42 @@
          src: url("//db.onlinewebfonts.com/t/cb051b6f43b7fae342080025a7ca8b75.eot?#iefix") format("embedded-opentype"), url("//db.onlinewebfonts.com/t/cb051b6f43b7fae342080025a7ca8b75.woff2") format("woff2"), url("//db.onlinewebfonts.com/t/cb051b6f43b7fae342080025a7ca8b75.woff") format("woff"), url("//db.onlinewebfonts.com/t/cb051b6f43b7fae342080025a7ca8b75.ttf") format("truetype"), url("//db.onlinewebfonts.com/t/cb051b6f43b7fae342080025a7ca8b75.svg#Colgate Ready") format("svg");
       }
 
+      html,
       body {
-         margin: 20px;
+         margin: 0px;
+         padding: 0px;
          font-family: "Colgate Ready";
+      }
+
+      .page {
+         width: 100%;
+         height: 100%;
+         position: relative;
+         display: block;
+         page-break-after: auto;
+         /* margin: 50px; */
+         overflow: hidden;
+      }
+
+      .page.prescipcion {
+         width: 90%;
+         margin: 0px auto;
          color: #595655;
+         background: white;
+      }
+
+      .page.colgate-pass {
+         margin: 0px;
+         padding: 0px;
+         background: black;
+      }
+
+      @media print {
+         .page {
+            margin: 0;
+            height: 100%;
+            width: 100%;
+         }
       }
 
       .titulo {
@@ -27,12 +59,12 @@
          color: #d2010d;
       }
 
-      .logoColgate {
+      /* .logoColgate {
          width: 70px;
          position: absolute;
          top: 0;
          left: 30px;
-      }
+      } */
 
       .seccionQR {
          width: min-content;
@@ -44,7 +76,7 @@
          border-radius: 8px;
          background: #d2010d;
          position: absolute;
-         top: 75px;
+         top: 65px;
          right: 60px;
       }
 
@@ -246,111 +278,138 @@
          text-align: center;
          color: #7e7e7e;
       }
+
+      .colgate-pass img.tarjeta {
+         width: 100%;
+         height: 100%;
+      }
+
+      .colgate-pass .data {
+         width: 100%;
+         text-align: center;
+         font-weight: 600;
+         position: absolute;
+         top: 25.5em;
+      }
+
+      .colgate-pass .data h1,
+      .colgate-pass .data p {
+         margin: 0;
+      }
    </style>
 </head>
 
 <body>
-   <h1 class="titulo">Prescripción Odontológica</h1>
-   <img src="{{LOGO_COLGATE}}" class="logoColgate" />
-   <hr>
-   <div>
-      <div class="seccionQR">
-         <h3>CÓDIGO QR</h3>
-         <img src="{{QR_INFORMATION}}" />
-      </div>
-      <div class="">
-         <!-- informacionDatos -->
-         <table>
-            <tbody>
-               <tr class="item-info">
-                  <td>
-                     <p class="item-titulo doctor">Fecha:</p>
-                  </td>
-                  <td>
-                     <p class="infoVariable doctor">{{FECHA_ACTUAL}}</p>
-                  </td>
-               </tr>
-               <tr class="item-info">
-                  <td>
-                     <p class="item-titulo paciente">PACIENTE:</p>
-                  </td>
-                  <td>
-                     <p class="infoVariable paciente">{{NOMBRE_PACIENTE}} {{APELLIDO_PACIENTE}}</p>
-                  </td>
-               </tr>
-               <tr class="item-info">
-                  <td>
-                     <p class="item-titulo paciente">CÉDULA:</p>
-                  </td>
-                  <td>
-                     <p class="infoVariable paciente">{{CEDULA_PACIENTE}}</p>
-                  </td>
-               </tr>
-               <tr class="item-info">
-                  <td>
-                     <p class="item-titulo doctor">Doctor(A):</p>
-                  </td>
-                  <td>
-                     <p class="infoVariable doctor">{{NOMBRE_DOCTOR}} {{APELLIDO_DOCTOR}}</p>
-                  </td>
-               </tr>
-               <tr class="item-info">
-                  <td>
-                     <p class="item-titulo doctor">TELÉFONO:</p>
-                  </td>
-                  <td>
-                     <p class="infoVariable doctor">{{TELEFONO_DOCTOR}}</p>
-                  </td>
-               </tr>
-            </tbody>
-         </table>
-
-      </div>
-   </div>
-
-   <hr>
-
-   <div class='seccion'>
-      <h3 class="titulo-listaProductos">PRODUCTOS</h3>
-      <div class='listaProductos'>
-         <table>
-            <tbody>
-               {{LISTA_PRODUCTOS}}
-            </tbody>
-         </table>
-      </div>
-   </div>
-
-   <hr>
-   <h3 class='titulo-recomendaciones'>RECOMENDACIONES ADICIONALES</h3>
-   <div class="recomendaciones">
-      <p class='texto-recomendaciones'>{{RECOMENDACIONES}}</p>
-   </div>
-
-   <div class='footer'>
-      <div class='seccionDoctor'>
-         <div class='seccion-imagenes'>
+   <div class="page prescipcion">
+      <h1 class="titulo">Prescripción Odontológica</h1>
+      <!-- <img src="{{LOGO_COLGATE}}" class="logoColgate" /> -->
+      <hr>
+      <div>
+         <div class="seccionQR">
+            <h3>CÓDIGO QR</h3>
+            <img src="{{QR_INFORMATION}}" />
+         </div>
+         <div class="">
+            <!-- informacionDatos -->
             <table>
-               <tr>
-                  <td>
-                     <img class='firma-doctor' src="{{FIRMA_DOCTOR}}" />
-                  </td>
-                  <td>
-                     <img class='sello-doctor' src="{{SELLO_DOCTOR}}" />
-                  </td>
-               </tr>
+               <tbody>
+                  <tr class="item-info">
+                     <td>
+                        <p class="item-titulo doctor">Fecha:</p>
+                     </td>
+                     <td>
+                        <p class="infoVariable doctor">{{FECHA_ACTUAL}}</p>
+                     </td>
+                  </tr>
+                  <tr class="item-info">
+                     <td>
+                        <p class="item-titulo paciente">PACIENTE:</p>
+                     </td>
+                     <td>
+                        <p class="infoVariable paciente">{{NOMBRE_PACIENTE}} {{APELLIDO_PACIENTE}}</p>
+                     </td>
+                  </tr>
+                  <tr class="item-info">
+                     <td>
+                        <p class="item-titulo paciente">CÉDULA:</p>
+                     </td>
+                     <td>
+                        <p class="infoVariable paciente">{{CEDULA_PACIENTE}}</p>
+                     </td>
+                  </tr>
+                  <tr class="item-info">
+                     <td>
+                        <p class="item-titulo doctor">Doctor(A):</p>
+                     </td>
+                     <td>
+                        <p class="infoVariable doctor">{{NOMBRE_DOCTOR}} {{APELLIDO_DOCTOR}}</p>
+                     </td>
+                  </tr>
+                  <tr class="item-info">
+                     <td>
+                        <p class="item-titulo doctor">TELÉFONO:</p>
+                     </td>
+                     <td>
+                        <p class="infoVariable doctor">{{TELEFONO_DOCTOR}}</p>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+
+         </div>
+      </div>
+
+      <hr>
+
+      <div class='seccion'>
+         <h3 class="titulo-listaProductos">PRODUCTOS</h3>
+         <div class='listaProductos'>
+            <table>
+               <tbody>
+                  {{LISTA_PRODUCTOS}}
+               </tbody>
             </table>
          </div>
-         <hr class="separador-doctor">
-         <p class="nombre-doctor">Dr(a).: {{NOMBRE_DOCTOR}} {{APELLIDO_DOCTOR}}</p>
       </div>
-      <br />
-      <div class='sugerencia'>
-         <p>Encuentre los productos en</p>
-         <p>Drogas la Rebaja, Farmatodo, Droguerías Alemana, Cruz Verde, Farmacias Pasteur, Locatel</p>
+
+      <hr>
+      <h3 class='titulo-recomendaciones'>RECOMENDACIONES ADICIONALES</h3>
+      <div class="recomendaciones">
+         <p class='texto-recomendaciones'>{{RECOMENDACIONES}}</p>
+      </div>
+
+      <div class='footer'>
+         <div class='seccionDoctor'>
+            <div class='seccion-imagenes'>
+               <table>
+                  <tr>
+                     <td>
+                        <img class='firma-doctor' src="{{FIRMA_DOCTOR}}" />
+                     </td>
+                     <td>
+                        <img class='sello-doctor' src="{{SELLO_DOCTOR}}" />
+                     </td>
+                  </tr>
+               </table>
+            </div>
+            <hr class="separador-doctor">
+            <p class="nombre-doctor">Dr(a).: {{NOMBRE_DOCTOR}} {{APELLIDO_DOCTOR}}</p>
+         </div>
+         <br />
+         <div class='sugerencia'>
+            <p>Encuentre los productos en</p>
+            <p>Drogas la Rebaja, Farmatodo, Droguerías Alemana, Cruz Verde, Farmacias Pasteur, Locatel</p>
+         </div>
       </div>
    </div>
 
+   <div class="page colgate-pass">
+      <div class="data">
+         <h1>COL0000000</h1>
+         <p>~ {{NOMBRE_DOCTOR}} {{APELLIDO_DOCTOR}} ~</p>
+      </div>
+      <img src="{{TARJETA_COLGATE_PASS}}" alt="tarjeta" class="tarjeta">
+   </div>
 </body>
 
 </html>

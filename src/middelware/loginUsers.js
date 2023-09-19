@@ -5,9 +5,13 @@ exports.validateDataUsers = (req, res, next) => {
   const { nombres, firma, sello } = data[0];
   let fotos = false;
 
-  if (firma !== null && sello !== null) {
+  if (firma !== null) {
     fotos = true;
   }
+  console.log({
+    token: crearToken(data[0]),
+    data: { nombres, fotos },
+  });
 
   res.status(200).json({
     token: crearToken(data[0]),
